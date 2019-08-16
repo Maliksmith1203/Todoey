@@ -8,29 +8,79 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
+
 
 class ToDoListViewController: SwipeTableViewController {
     
     
+  
     
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     var toDoItems: Results<Item>?
+
     let realm = try! Realm()
-    var selectedCategory : Category? {
+    var selectedCategory : Category?
+    {
         didSet {
             loaditems()
         }
     }
+    
+    
+   
   
    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-     print(Realm.Configuration.defaultConfiguration.fileURL!)
+      
         tableView.rowHeight = 80.0
        
     
                                                                         
-    }    // Do any additional setup after loading the view.
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let colorHex = selectedCategory?.color {
+        
+            title = selectedCategory!.name
+            
+            guard let navBar = navigationController?.navigationBar else {fatalError("Navigation Controller Does Not Exist")}
+            
+            if let navBarColor = UIColor(hexString: colorHex) {
+            navBar.barTintColor = navBarColor
+                navBar.tintColor = UIColor(contrastingBlackOrWhiteColorOn:navBarColor, isFlat:true)
+                navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor(contrastingBlackOrWhiteColorOn:navBarColor, isFlat:true)]
+                searchBar.barTintColor = navBarColor
+            }
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+
+       updateNavBar(withHexCode: "1D9Bf6")
+    }
+    
+    
+    func updateNavBar(withHexCode colorHexCode:String) {
+        guard let navBar = navigationController?.navigationBar else {fatalError("Navigation Controller Does Not Exist")}
+        if let navBarColor = UIColor(hexString: colorHexCode) {
+            navBar.barTintColor = navBarColor
+            navBar.tintColor = UIColor(contrastingBlackOrWhiteColorOn:navBarColor, isFlat:true)
+            navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor(contrastingBlackOrWhiteColorOn:navBarColor, isFlat:true)]
+            searchBar.barTintColor = navBarColor
+        }
+    }
+        
+
+    
+        
+          
+            
+    
+    // Do any additional setup after loading the view.
     
     
     // MARK: Table DataSource Methods
@@ -47,11 +97,17 @@ class ToDoListViewController: SwipeTableViewController {
         if let items = toDoItems?[indexPath.row] {
             
                 cell.textLabel?.text = items.title
-                 cell.accessoryType = items.done  ? .checkmark : .none
+                 cell.accessoryType = items.done ? .checkmark : .none
+            if let color = UIColor(hexString: selectedCategory!.color)?.darken(byPercentage: CGFloat(indexPath.row) /  CGFloat(toDoItems!.count)) {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = UIColor(contrastingBlackOrWhiteColorOn:color, isFlat:true)
+
+            }
             
         }
         else {
-            print("No items added")
+            cell.textLabel?.text = "No Items Added"
+            
         }
         
        //Ternary Operator ==>
@@ -95,6 +151,7 @@ class ToDoListViewController: SwipeTableViewController {
             } catch {
                 print("Error saving done status, \(error)")
             }
+            tableView.reloadData()
             
         }
        

@@ -9,6 +9,7 @@
 import UIKit
 import RealmSwift
 import SwipeCellKit
+import ChameleonFramework
 
 
 
@@ -17,6 +18,7 @@ class CategoryViewController: SwipeTableViewController  {
     
     let realm = try! Realm()
     var categories: Results<Category>?
+  
    
     
     
@@ -24,6 +26,10 @@ class CategoryViewController: SwipeTableViewController  {
         super.viewDidLoad()
        loadcategories()
         tableView.rowHeight = 80.0
+        tableView.separatorStyle = .none
+         print(Realm.Configuration.defaultConfiguration.fileURL!)
+       
+   
     
     }
 
@@ -41,8 +47,11 @@ class CategoryViewController: SwipeTableViewController  {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
-        let category = categories?[indexPath.row].name ?? "No Categories added yet"
-        cell.textLabel?.text = category
+       
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories added yet"
+        cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].color ?? "1D9BF6")
+        
+      
         
         //Ternary Operator ==>
         // value = condition ? valueIfTrue : valueIfFalse
@@ -68,14 +77,17 @@ class CategoryViewController: SwipeTableViewController  {
     }
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField ()
+
+       
         let alert = UIAlertController(title: "Add New Todoey Category", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "Add Category", style: .default) { (action) in 
         
         
         //Mark:- TableViewDatasource Methods
         
-        let newCategory = Category()
+            let newCategory = Category()
         newCategory.name = textField.text!
+            newCategory.color = (UIColor.randomFlat.hexValue())
             self.saveCategories(category: newCategory)
        
         
@@ -126,7 +138,7 @@ class CategoryViewController: SwipeTableViewController  {
         self.tableView.reloadData()
     }
     func loadcategories() {
-    categories = realm.objects(Category.self)
+        categories = realm.objects(Category.self)
 
         tableView.reloadData()
         
