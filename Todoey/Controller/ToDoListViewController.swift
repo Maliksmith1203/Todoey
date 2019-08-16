@@ -44,19 +44,13 @@ class ToDoListViewController: SwipeTableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         if let colorHex = selectedCategory?.color {
-        
-            title = selectedCategory!.name
+           title = selectedCategory!.name
+            updateNavBar(withHexCode: colorHex)
             
-            guard let navBar = navigationController?.navigationBar else {fatalError("Navigation Controller Does Not Exist")}
-            
-            if let navBarColor = UIColor(hexString: colorHex) {
-            navBar.barTintColor = navBarColor
-                navBar.tintColor = UIColor(contrastingBlackOrWhiteColorOn:navBarColor, isFlat:true)
-                navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor(contrastingBlackOrWhiteColorOn:navBarColor, isFlat:true)]
-                searchBar.barTintColor = navBarColor
+      
             }
         }
-    }
+    
     
     override func viewWillDisappear(_ animated: Bool) {
 
@@ -73,7 +67,7 @@ class ToDoListViewController: SwipeTableViewController {
             searchBar.barTintColor = navBarColor
         }
     }
-        
+    
 
     
         
